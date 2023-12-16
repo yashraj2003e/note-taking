@@ -1,0 +1,98 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.show-button {
+  color: white;
+  position: absolute;
+  top: 5vh;
+  right: 1vh;
+  font-size: 3rem;
+  cursor: pointer;
+}
+
+.hide-button {
+  top: 0vh;
+  color: white;
+  right: 18vw;
+}
+
+.side-bar {
+  right: 0;
+  top: 0;
+  position: absolute;
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.side-bar-visible {
+  background-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 5vh;
+  height: 90vh;
+  max-height: 90vh;
+  right: 1vw;
+  min-width: 17vw;
+  max-width: 17vw;
+}
+
+.side-bar-visible .main-elements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.side-bar-visible h3 {
+  font-size: 1.4rem;
+  white-space: nowrap;
+  margin: 0.4rem;
+  color: white;
+  padding: 0;
+  text-shadow: 0px 5px 5px rgb(233, 230, 65);
+  cursor: pointer;
+}
+
+.side-bar-visible {
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: #c4c8cc;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 4px;
+  background-color: #959595;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 10px;
+  background-color: #c4c8cc;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  width: 4px;
+  background-color: #959595;
+  border-radius: 8px;
+}
+
+html:hover {
+  scrollbar-color: white rgb(255, 255, 255, 0.2);
+}
