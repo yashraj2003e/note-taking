@@ -1,0 +1,207 @@
+{
+    "extension": "linecounter",
+    "version": "0.2.7",
+    "workspace": "d:\\react-markdown-project",
+    "linecount": [
+        {
+            "version": "0.2.7",
+            "counttime": "2023-12-17 13:35:08",
+            "filesum": 25,
+            "codesum": 20711,
+            "commentsum": 30,
+            "blanksum": 100,
+            "statistics": {
+                ".json": {
+                    "code": 19853,
+                    "comment": 0,
+                    "blank": 5
+                },
+                ".txt": {
+                    "code": 3,
+                    "comment": 1,
+                    "blank": 0
+                },
+                ".html": {
+                    "code": 20,
+                    "comment": 23,
+                    "blank": 0
+                },
+                ".md": {
+                    "code": 21,
+                    "comment": 4,
+                    "blank": 15
+                },
+                "": {
+                    "code": 18,
+                    "comment": 1,
+                    "blank": 5
+                },
+                ".js": {
+                    "code": 610,
+                    "comment": 1,
+                    "blank": 50
+                },
+                ".css": {
+                    "code": 186,
+                    "comment": 0,
+                    "blank": 25
+                }
+            },
+            "filelist": [
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 1,
+                    "filename": ".gitignore"
+                },
+                {
+                    "blank": 2,
+                    "code": 19788,
+                    "comment": 0,
+                    "filename": "package-lock.json"
+                },
+                {
+                    "blank": 3,
+                    "code": 40,
+                    "comment": 0,
+                    "filename": "package.json"
+                },
+                {
+                    "filename": "public\\favicon.ico",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 20,
+                    "comment": 23,
+                    "filename": "public\\index.html"
+                },
+                {
+                    "filename": "public\\logo192.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "filename": "public\\logo512.png",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 25,
+                    "comment": 0,
+                    "filename": "public\\manifest.json"
+                },
+                {
+                    "blank": 0,
+                    "code": 3,
+                    "comment": 1,
+                    "filename": "public\\robots.txt"
+                },
+                {
+                    "blank": 15,
+                    "code": 21,
+                    "comment": 4,
+                    "filename": "README.md"
+                },
+                {
+                    "blank": 22,
+                    "code": 374,
+                    "comment": 1,
+                    "filename": "src\\App.js"
+                },
+                {
+                    "blank": 0,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "src\\Components\\defaultNode.css"
+                },
+                {
+                    "blank": 3,
+                    "code": 35,
+                    "comment": 0,
+                    "filename": "src\\Components\\DefaultNode.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 30,
+                    "comment": 0,
+                    "filename": "src\\Components\\heading-node.css"
+                },
+                {
+                    "blank": 6,
+                    "code": 44,
+                    "comment": 0,
+                    "filename": "src\\Components\\Heading.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 12,
+                    "comment": 0,
+                    "filename": "src\\Components\\inputEditable.css"
+                },
+                {
+                    "blank": 4,
+                    "code": 28,
+                    "comment": 0,
+                    "filename": "src\\Components\\InputEditable.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 29,
+                    "comment": 0,
+                    "filename": "src\\Components\\OutputNode.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 10,
+                    "comment": 0,
+                    "filename": "src\\Components\\text-updater-node.css"
+                },
+                {
+                    "blank": 4,
+                    "code": 45,
+                    "comment": 0,
+                    "filename": "src\\Components\\TextUpdaterNode.js"
+                },
+                {
+                    "blank": 6,
+                    "code": 31,
+                    "comment": 0,
+                    "filename": "src\\dnd.module.css"
+                },
+                {
+                    "blank": 2,
+                    "code": 12,
+                    "comment": 0,
+                    "filename": "src\\Flow.js"
+                },
+                {
+                    "blank": 1,
+                    "code": 6,
+                    "comment": 0,
+                    "filename": "src\\index.js"
+                },
+                {
+                    "blank": 4,
+                    "code": 37,
+                    "comment": 0,
+                    "filename": "src\\Sidebar.js"
+                },
+                {
+                    "blank": 13,
+                    "code": 96,
+                    "comment": 0,
+                    "filename": "src\\styles.css"
+                }
+            ]
+        }
+    ]
+}

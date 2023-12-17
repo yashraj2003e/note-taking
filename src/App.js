@@ -1,16 +1,19 @@
-import ReactFlow, { Controls, Background, addEdge, MiniMap } from "reactflow";
+import { ReactFlow, addEdge, Controls, Background, MiniMap } from "reactflow";
 import "reactflow/dist/style.css";
 import { useState, useCallback, useEffect } from "react";
 import { applyEdgeChanges, applyNodeChanges } from "reactflow";
 import { FaChevronCircleLeft, FaChevronCircleRight } from "react-icons/fa";
 import { SlArrowRight, SlArrowDown } from "react-icons/sl";
 import { ColorPicker, useColor } from "react-color-palette";
-import TextUpdaterNode from "./TextUpdaterNode.js";
+import TextUpdaterNode from "./Components/TextUpdaterNode.js";
 import "react-color-palette/css";
-import "./text-updater-node.css";
-import HeadingNode from "./Heading.js";
-import "./heading-node.css";
-
+import "./Components/text-updater-node.css";
+import HeadingNode from "./Components/Heading.js";
+import "./Components/heading-node.css";
+import "./Components/inputEditable.css";
+import InputNode from "./Components/InputEditable.js";
+import DefaultNode from "./Components/DefaultNode.js";
+import OutputNode from "./Components/OutputNode.js";
 const initialNodes = [
   {
     id: "A",
@@ -18,14 +21,14 @@ const initialNodes = [
     data: { label: null },
     position: { x: 0, y: 0 },
     style: {
-      width: 370,
-      height: 240,
+      width: 500,
+      height: 300,
       backgroundColor: "rgba(240,240,240,0.25)",
     },
   },
   {
     id: "node-1",
-    type: "textUpdater",
+    type: "TextUpdater",
     position: { x: 0, y: 0 },
     data: { value: 123 },
     parentNode: "A",
@@ -33,7 +36,7 @@ const initialNodes = [
   },
   {
     id: "node-2",
-    type: "output",
+    type: "DefaultNode",
     targetPosition: "top",
     position: { x: 0, y: 200 },
     data: { label: "node 2" },
@@ -42,7 +45,7 @@ const initialNodes = [
   },
   {
     id: "node-3",
-    type: "output",
+    type: "InputNode",
     targetPosition: "top",
     position: { x: 200, y: 200 },
     data: { label: "node 3" },
@@ -51,19 +54,20 @@ const initialNodes = [
   },
   {
     id: "node-4",
+    type: "DefaultNode",
     targetPosition: "top",
     position: { x: 300, y: 300 },
     data: { label: "node 4" },
   },
   {
     id: "node-5",
-    type: "headingNode",
+    type: "HeadingNode",
     position: { x: 300, y: 300 },
     data: { value: 123 },
   },
   {
     id: "node-6",
-    type: "headingNode",
+    type: "HeadingNode",
     position: { x: 300, y: 300 },
     data: { value: 123 },
   },
@@ -86,7 +90,13 @@ const initialEdges = [
   },
 ];
 
-const nodeTypes = { textUpdater: TextUpdaterNode, headingNode: HeadingNode };
+const nodeTypes = {
+  TextUpdater: TextUpdaterNode,
+  HeadingNode: HeadingNode,
+  InputNode: InputNode,
+  DefaultNode: DefaultNode,
+  OutputNode: OutputNode,
+};
 
 function App() {
   const [nodes, setNodes] = useState(initialNodes);
@@ -96,6 +106,7 @@ function App() {
   const [isPalleteVisibile, setIsPaletteVisible] = useState(false);
   const [isDotPalleteVisibile, setIsDotPaletteVisible] = useState(false);
   const [sideBarVisibility, setSideBarVisibility] = useState(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState();
 
   useEffect(() => {
     document.title = "Notes";
@@ -116,10 +127,146 @@ function App() {
     [setEdges]
   );
 
+  const onDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  };
+
+  const getId = () => crypto.randomUUID();
+
+  const onInit = (rfi) => setReactFlowInstance(rfi);
+
+  const onDrop = async (event) => {
+    event.preventDefault();
+
+    if (reactFlowInstance) {
+      const type = event.dataTransfer.getData("application/reactflow");
+      const position2 = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      let newNode;
+      if (type === "group") {
+        newNode = {
+          id: getId(),
+          type,
+          position: position2,
+          data: { label: `${type} node` },
+          style: {
+            width: 500,
+            height: 300,
+            backgroundColor: "rgba(240,240,240,0.25)",
+          },
+        };
+      } else {
+        let flag = false;
+        const isDroppedOnGroup = nodes.filter((node) => {
+          if (node.type === "group") {
+            const xVal =
+              node.position.x < 0
+                ? 500 - Math.abs(node.position.x)
+                : node.position.x;
+            const yVal =
+              node.position.y < 0
+                ? 300 - Math.abs(node.position.y)
+                : node.position.y;
+
+            console.log(
+              `position.x ${position2.x}, xVal: ${xVal}, position.y: ${position2.y}, yVal: ${yVal}, node.position.x: ${node.position.x}, node.position.y: ${node.position.y}`
+            );
+            let f1 = false;
+            let f2 = false;
+            if (node.position.x < 0) {
+              if (
+                position2.x > node.position.x &&
+                position2.x < node.position.x + 500
+              ) {
+                f1 = true;
+              }
+            }
+            if (node.position.y < 0) {
+              if (
+                position2.y > node.position.y &&
+                position2.y < node.position.y + 300
+              ) {
+                f2 = true;
+              }
+            }
+
+            console.log(f1, " ", f2);
+
+            if (f1 && f2) {
+              flag = true;
+              return node.id;
+            }
+
+            if (
+              position2.x > xVal &&
+              position2.x <
+                (xVal < 0 ? node.position.x : node.position.x + 500) &&
+              position2.y > yVal &&
+              position2.y < (yVal < 0 ? node.position.y : node.position.y + 300)
+            ) {
+              console.log(
+                position2.y > yVal &&
+                  position2.y <
+                    (yVal < 0 ? node.position.y : node.position.y + 500)
+              );
+
+              flag = true;
+              return node.id;
+            }
+            return null;
+          } else {
+            return null;
+          }
+        });
+        console.log(isDroppedOnGroup);
+
+        if (flag) {
+          console.log(position2);
+          const position1 = {
+            x: isDroppedOnGroup[0].position.x,
+            y: isDroppedOnGroup[0].position.y,
+          };
+          console.log(position1);
+          console.log(isDroppedOnGroup[0].position);
+          newNode = {
+            id: getId(),
+            type,
+            position: position1,
+            data: { label: `${type} node` },
+            parentNode: "A",
+            extent: "parent",
+          };
+          console.log(newNode);
+        } else {
+          newNode = {
+            id: getId(),
+            type,
+            position: position2,
+            data: { label: `${type} node` },
+          };
+        }
+      }
+
+      setNodes((nds) => nds.concat(newNode));
+    }
+  };
+
+  const onDragStart = (event, nodeType) => {
+    event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.effectAllowed = "move";
+  };
+
   return (
     <>
       <div
-        style={{ height: "100%", width: sideBarVisibility ? "100vw" : "100vw" }}
+        style={{
+          height: "100%",
+          width: sideBarVisibility ? "100vw" : "100vw",
+          background: bgColor.hex,
+        }}
       >
         <ReactFlow
           nodes={nodes}
@@ -127,8 +274,11 @@ function App() {
           onEdgesChange={onEdgesChange}
           onNodesChange={onNodesChange}
           nodeTypes={nodeTypes}
-          attributionPosition="top-right"
+          // attributionPosition="top-right"
+          onInit={onInit}
           onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
           fitView
         >
           <Background
@@ -141,6 +291,7 @@ function App() {
           />
         </ReactFlow>
       </div>
+
       <div className="side-bar">
         {!sideBarVisibility ? (
           <FaChevronCircleLeft
@@ -198,38 +349,34 @@ function App() {
                 />
               )}
               <button
-                onClick={(event) => {
-                  setNodes((nodes) => [
-                    ...nodes,
-                    {
-                      id: crypto.randomUUID().toString(),
-                      type: "custom",
-                      data: { label: "Worldaaa" },
-                      position: {
-                        x: 0,
-                        y: 0,
-                      },
-                    },
-                  ]);
-                  console.log(event.clientX);
-                  console.log(event.clientY);
-                }}
+                onDragStart={(event) => onDragStart(event, "group")}
+                draggable
               >
-                Add a Node +
+                Add a Group Node +
               </button>
               <button
-                onClick={() => {
-                  setNodes((nodes) => [
-                    ...nodes,
-                    {
-                      id: crypto.randomUUID().toString(),
-                      type: "headingNode",
-                      position: { x: 0, y: 0 },
-                    },
-                  ]);
-                }}
+                onDragStart={(event) => onDragStart(event, "HeadingNode")}
+                draggable
               >
-                Add Heading +
+                Add a Heading Node +
+              </button>
+              <button
+                onDragStart={(event) => onDragStart(event, "DefaultNode")}
+                draggable
+              >
+                Add a Default Node +
+              </button>
+              <button
+                onDragStart={(event) => onDragStart(event, "InputNode")}
+                draggable
+              >
+                Add an Input Node +
+              </button>
+              <button
+                onDragStart={(event) => onDragStart(event, "OutputNode")}
+                draggable
+              >
+                Add an Output Node +
               </button>
             </div>
           </div>
