@@ -1,17 +1,14 @@
 import { useCallback } from "react";
 import { Handle, Position } from "reactflow";
 
-const handleStyle = { left: 10 };
-const handleStyle1 = { right: 100 };
-
 function OutputNode({ isConnectable }) {
   const onChange = useCallback((evt) => {
     console.log(evt.target.value);
   }, []);
 
   return (
-    <div className="input-node">
-      <div className="inputs">
+    <div className="output-node1">
+      <div className="outputs1">
         <input
           id="text"
           name="text"

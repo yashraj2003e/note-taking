@@ -1,4 +1,12 @@
-import { ReactFlow, addEdge, Controls, Background, MiniMap } from "reactflow";
+import {
+  ReactFlow,
+  addEdge,
+  Controls,
+  Background,
+  MiniMap,
+  MarkerType,
+  ReactFlowProvider,
+} from "reactflow";
 import "reactflow/dist/style.css";
 import { useState, useCallback, useEffect } from "react";
 import { applyEdgeChanges, applyNodeChanges } from "reactflow";
@@ -14,11 +22,17 @@ import "./Components/inputEditable.css";
 import InputNode from "./Components/InputEditable.js";
 import DefaultNode from "./Components/DefaultNode.js";
 import OutputNode from "./Components/OutputNode.js";
+import ImageNode from "./Components/Image.js";
+import CustomNode from "./CustomNode.js";
+import FloatingEdge from "./FloatingEdge.js";
+import CustomConnectionLine from "./CustomConnectionLine.js";
+import "./Components/OutputNode.css";
+import "./style.css";
+
 const initialNodes = [
   {
     id: "A",
     type: "group",
-    data: { label: null },
     position: { x: 0, y: 0 },
     style: {
       width: 500,
@@ -26,52 +40,11 @@ const initialNodes = [
       backgroundColor: "rgba(240,240,240,0.25)",
     },
   },
-  {
-    id: "node-1",
-    type: "TextUpdater",
-    position: { x: 0, y: 0 },
-    data: { value: 123 },
-    parentNode: "A",
-    extent: "parent",
-  },
-  {
-    id: "node-2",
-    type: "DefaultNode",
-    targetPosition: "top",
-    position: { x: 0, y: 200 },
-    data: { label: "node 2" },
-    parentNode: "A",
-    extent: "parent",
-  },
-  {
-    id: "node-3",
-    type: "InputNode",
-    targetPosition: "top",
-    position: { x: 200, y: 200 },
-    data: { label: "node 3" },
-    parentNode: "A",
-    extent: "parent",
-  },
-  {
-    id: "node-4",
-    type: "DefaultNode",
-    targetPosition: "top",
-    position: { x: 300, y: 300 },
-    data: { label: "node 4" },
-  },
-  {
-    id: "node-5",
-    type: "HeadingNode",
-    position: { x: 300, y: 300 },
-    data: { value: 123 },
-  },
-  {
-    id: "node-6",
-    type: "HeadingNode",
-    position: { x: 300, y: 300 },
-    data: { value: 123 },
-  },
 ];
+
+const edgeTypes = {
+  floating: FloatingEdge,
+};
 
 const initialEdges = [
   {
@@ -79,6 +52,16 @@ const initialEdges = [
     source: "node-1",
     target: "node-2",
     sourceHandle: "b",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: "#FF0072",
+    },
+    style: {
+      strokeWidth: 2,
+      stroke: "#FF0072",
+    },
     animated: true,
   },
   {
@@ -86,16 +69,33 @@ const initialEdges = [
     source: "node-1",
     target: "node-3",
     sourceHandle: "a",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 20,
+      height: 20,
+      color: "#FF0072",
+    },
+    style: {
+      strokeWidth: 2,
+      stroke: "#FF0072",
+    },
     animated: true,
   },
 ];
 
 const nodeTypes = {
+  custom: CustomNode,
   TextUpdater: TextUpdaterNode,
   HeadingNode: HeadingNode,
   InputNode: InputNode,
   DefaultNode: DefaultNode,
   OutputNode: OutputNode,
+  ImageNode: ImageNode,
+};
+
+const connectionLineStyle = {
+  strokeWidth: 3,
+  stroke: "black",
 };
 
 function App() {
@@ -118,12 +118,31 @@ function App() {
     [setNodes]
   );
   const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes) => {
+      console.log(changes);
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+    },
     [setEdges]
   );
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params) => {
+      params = {
+        ...params,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: "#FF0072",
+        },
+        style: {
+          strokeWidth: 2,
+          stroke: "#FF0072",
+        },
+        animated: true,
+      };
+      setEdges((eds) => addEdge(params, eds));
+    },
     [setEdges]
   );
 
@@ -136,131 +155,86 @@ function App() {
 
   const onInit = (rfi) => setReactFlowInstance(rfi);
 
-  const onDrop = async (event) => {
-    event.preventDefault();
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
 
-    if (reactFlowInstance) {
+      let val = "";
+      if (event.target.classList.contains("react-flow__node-group")) {
+        val = event.target.attributes[2].nodeValue;
+      } else {
+        console.log(0);
+      }
+
       const type = event.dataTransfer.getData("application/reactflow");
-      const position2 = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-      let newNode;
-      if (type === "group") {
+
+      // check if the dropped element is valid
+      if (typeof type === "undefined" || !type) {
+        return;
+      }
+
+      let newNode = "";
+      let xx = 0;
+      let yy = 0;
+      if (val !== "") {
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        const ff1 = nodes.filter((node) => (node.id === "A" ? node : null));
+        console.log(ff1[0].positionAbsolute);
+        const ff = ff1[0].position;
+        xx = ff.x;
+        yy = ff.y;
+        console.log(ff);
         newNode = {
           id: getId(),
           type,
-          position: position2,
+          position: { x: xx, y: yy },
+          parentNode: val,
+          extent: "parent",
           data: { label: `${type} node` },
-          style: {
-            width: 500,
-            height: 300,
-            backgroundColor: "rgba(240,240,240,0.25)",
-          },
         };
+        console.log(newNode);
       } else {
-        let flag = false;
-        const isDroppedOnGroup = nodes.filter((node) => {
-          if (node.type === "group") {
-            const xVal =
-              node.position.x < 0
-                ? 500 - Math.abs(node.position.x)
-                : node.position.x;
-            const yVal =
-              node.position.y < 0
-                ? 300 - Math.abs(node.position.y)
-                : node.position.y;
-
-            console.log(
-              `position.x ${position2.x}, xVal: ${xVal}, position.y: ${position2.y}, yVal: ${yVal}, node.position.x: ${node.position.x}, node.position.y: ${node.position.y}`
-            );
-            let f1 = false;
-            let f2 = false;
-            if (node.position.x < 0) {
-              if (
-                position2.x > node.position.x &&
-                position2.x < node.position.x + 500
-              ) {
-                f1 = true;
-              }
-            }
-            if (node.position.y < 0) {
-              if (
-                position2.y > node.position.y &&
-                position2.y < node.position.y + 300
-              ) {
-                f2 = true;
-              }
-            }
-
-            console.log(f1, " ", f2);
-
-            if (f1 && f2) {
-              flag = true;
-              return node.id;
-            }
-
-            if (
-              position2.x > xVal &&
-              position2.x <
-                (xVal < 0 ? node.position.x : node.position.x + 500) &&
-              position2.y > yVal &&
-              position2.y < (yVal < 0 ? node.position.y : node.position.y + 300)
-            ) {
-              console.log(
-                position2.y > yVal &&
-                  position2.y <
-                    (yVal < 0 ? node.position.y : node.position.y + 500)
-              );
-
-              flag = true;
-              return node.id;
-            }
-            return null;
-          } else {
-            return null;
-          }
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
         });
-        console.log(isDroppedOnGroup);
-
-        if (flag) {
-          console.log(position2);
-          const position1 = {
-            x: isDroppedOnGroup[0].position.x,
-            y: isDroppedOnGroup[0].position.y,
-          };
-          console.log(position1);
-          console.log(isDroppedOnGroup[0].position);
-          newNode = {
-            id: getId(),
-            type,
-            position: position1,
-            data: { label: `${type} node` },
-            parentNode: "A",
-            extent: "parent",
-          };
-          console.log(newNode);
-        } else {
-          newNode = {
-            id: getId(),
-            type,
-            position: position2,
-            data: { label: `${type} node` },
-          };
-        }
+        newNode = {
+          id: getId(),
+          type,
+          position,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20,
+            color: "#FF0072",
+          },
+          style: {
+            strokeWidth: 2,
+            stroke: "#FF0072",
+          },
+          data: { label: `${type} node` },
+        };
       }
 
       setNodes((nds) => nds.concat(newNode));
-    }
-  };
+    },
+    [nodes, reactFlowInstance]
+  );
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData("application/reactflow", nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
 
+  const onConnectEnd = useCallback((event) => {
+    // console.log(event.target.attributes[2].nodeValue);
+  }, []);
+
   return (
-    <>
+    <ReactFlowProvider>
       <div
         style={{
           height: "100%",
@@ -275,15 +249,20 @@ function App() {
           onNodesChange={onNodesChange}
           nodeTypes={nodeTypes}
           // attributionPosition="top-right"
+          onConnectEnd={onConnectEnd}
+          edgeTypes={edgeTypes}
+          connectionLineStyle={connectionLineStyle}
           onInit={onInit}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          connectionLineComponent={CustomConnectionLine}
           fitView
         >
           <Background
             style={{ backgroundColor: bgColor.hex }}
             color={dotColor.hex}
+            variant="dots"
           />
           <Controls />
           <MiniMap
@@ -349,7 +328,7 @@ function App() {
                 />
               )}
               <button
-                onDragStart={(event) => onDragStart(event, "group")}
+                onDragStart={(event) => onDragStart(event, "custom")}
                 draggable
               >
                 Add a Group Node +
@@ -378,11 +357,23 @@ function App() {
               >
                 Add an Output Node +
               </button>
+              <button
+                onDragStart={(event) => onDragStart(event, "TextUpdater")}
+                draggable
+              >
+                Add an Large Text Node +
+              </button>
+              <button
+                onDragStart={(event) => onDragStart(event, "ImageNode")}
+                draggable
+              >
+                Add an Image +
+              </button>
             </div>
           </div>
         )}
       </div>
-    </>
+    </ReactFlowProvider>
   );
 }
 
